@@ -1,13 +1,36 @@
 import styles from "../styles/settings.module.css";
 import { useAuth } from "../hooks";
-import { useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, useParams, useNavigate } from "react-router-dom";
+import { fetchUserProfile } from "../api";
+import { Loader } from "../components";
 
 const UserProfile = () => {
   const auth = useAuth();
-  const location = useLocation();
-  console.log(location);
-  const { user = {} } = location.state;
+  const { userId } = useParams();
+  const navigate = useNavigate();
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const response = await fetchUserProfile(userId);
+
+      if (response.success) {
+        setUser(response.data.user);
+        setLoading(false);
+      } else {
+        alert(response.message);
+        return navigate.push("/");
+      }
+    };
+
+    getUser();
+  }, [userId, navigate]);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   if (!auth.user) {
     return <Navigate to="/login" />;

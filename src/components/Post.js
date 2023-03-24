@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 // import { useToasts } from "react-toast-notifications";
 
-import { createComment } from "../api";
+import { createComment, toggleLike } from "../api";
 import { usePosts } from "../hooks";
 import styles from "../styles/home.module.css";
 import { Comment } from "./";
@@ -45,6 +45,20 @@ const Post = ({ post }) => {
     }
   };
 
+  const handlePostLikeClick = async () => {
+    const response = await toggleLike(post._id, "Post");
+
+    if (response.success) {
+      if (response.data.deleted) {
+        alert("Like Removed Successfully");
+      } else {
+        alert("Like Added Successfully ");
+      }
+    } else {
+      alert(response.message);
+    }
+  };
+
   return (
     <div className={styles.postWrapper} key={post._id}>
       <div className={styles.postHeader}>
@@ -72,10 +86,12 @@ const Post = ({ post }) => {
 
         <div className={styles.postActions}>
           <div className={styles.postLike}>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/1077/1077035.png"
-              alt="likes-icon"
-            />
+            <button onClick={handlePostLikeClick}>
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/1077/1077035.png"
+                alt="likes-icon"
+              />
+            </button>
             <span>{post.likes.length}</span>
           </div>
 
